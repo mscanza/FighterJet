@@ -1,0 +1,182 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  margin: auto;
+  position: relative;
+  height: 900px;
+  width: 1400px;
+  border: 2px solid black;
+  overflow: hidden;
+  background-color: black;
+  /* background-image: url("./Assets/Images/Panoramic-View-of-the-Fire-and-Fury-of-Star-Birth.jpg");
+  background-size: cover; */
+}
+
+/* .backgroundContainer {
+  background-image: url("./Assets/Images/Panoramic-View-of-the-Fire-and-Fury-of-Star-Birth.jpg");
+  background-size: cover;
+  height: 900px;
+  width: 1400px;
+  z-index: 1;
+} */
+
+.enemyContainer {
+  margin: auto;
+  position: relative;
+  height: 900px;
+  width: 1400px;
+  border: 2px solid black;
+  overflow: hidden;
+  background: none;
+  z-index: 1;
+  transform: rotate(180deg);
+}
+
+.fighterJet {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  position: absolute;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-image: url("./Assets/Images/fighterJetTwoVector.png");
+  z-index: 100;
+
+}
+.bullet {
+  height: 10px;
+  width: 5px;
+  background-color: red;
+  position: absolute;
+  border-radius: 50%;
+}
+
+.secondary {
+  height: 30px;
+  width: 30px;
+  position: absolute;
+  border-radius: 0;
+  background: none;
+  background-image: url("./Assets/Images/missile-icon-png-3-original.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  filter: invert(80%) sepia(42%) saturate(649%) hue-rotate(135deg) brightness(100%) contrast(86%);
+}
+
+.explosionContainer {
+  position: absolute;
+  height: 10px;
+  width: 10px;
+}
+
+.explosionPiece {
+  height: 3px;
+  width: 3px;
+  position: absolute;
+  opacity: 1;
+  border-radius: 50%;
+}
+
+.star {
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+}
+
+.hitbox {
+  height: 100px;
+  width: 100px;
+  top: 0;
+  left: 0;
+  position: absolute;
+  background-color: red;
+  z-index: 2;
+  display: none;
+}
+
+.tooltip {
+  height: 5px;
+  width: 100px;
+  border-radius: 5px;
+  border: 2px solid black;
+  background-color: darkgrey;
+  opacity: 0;
+  position: relative;
+  transform: rotate(180deg);
+  transition: opacity 0.2s;
+  margin: 0 auto;
+  top: 100px;
+  text-align: center;
+
+}
+.health {
+  position: relative;
+  height: 100%;
+}
+
+.obstacle {
+  background-size: contain;
+  position: absolute;
+  background-repeat: no-repeat;
+}
+
+.playerHealth {
+  position: fixed;
+  bottom: 25px;
+  left: 600px;
+  width: 300px;
+  height: 40px;
+  font-family: Arial, Helvetica, sans-serif;
+  z-index: 200;
+}
+
+.playerHealthMeter {
+  width: 300px;
+  height: 10px;
+  background-color: grey;
+  margin: auto;
+}
+
+.currentPlayerHealth {
+  width: 300px;
+  height: 10px;
+  background-color: lime;
+}
+
+.healthIcon {
+  display: block;
+  height: 30px;
+  width: 30px;
+  margin: 5px auto;
+}
+
+.score {
+  position: absolute;
+  top: 25px;
+  color: white;
+  font-size: 40px;
+  right: 40px;
+  font-family: 'Audiowide', cursive;
+  z-index: 200;
+}
+
+.gameOver {
+  font-size: 100px;
+  letter-spacing: 10px;
+  color: red;
+  text-align: center;
+  text-transform: uppercase;
+  display: flex;
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 300;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 2s;
+}
