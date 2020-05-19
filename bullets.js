@@ -45,7 +45,9 @@ function updateBullet(bullet, enemies, obstacles) {
   if (topCollision) {
     bullet.collided = true;
     if (bullet.type === 'secondary') {
-      bullet.soundCollision.play();
+      if (!muted) {
+        bullet.soundCollision.play();
+      }
     }
   }
 
@@ -73,7 +75,9 @@ function updateEnemyBullet(bullet) {
   if (topCollision) {
     bullet.collided = true;
     if (bullet.type === 'secondary') {
-      bullet.soundCollision.play();
+      if (!muted) {
+        bullet.soundCollision.play();
+      }
     }
   }
 
@@ -116,11 +120,17 @@ function Bullet(left, top, type = 'primary', subtype = 'left', color, time, enem
   if (this.type === 'secondary') {
     this.element.classList.add('secondary');
     this.soundCollision.src = './audio/secondaryCollision.mp3';
+    this.width = 8;
+    this.height = 20;
+    this.damage = 10;
     if (this.subtype === 'left') {
       this.sound.src = './audio/secondary.mp3';
     }
   } else if (this.type === 'primary') {
+    this.height = 10;
+    this.width = 5;
     this.sound.src = './audio/primary.mp3';
+    this.damage = 1;
   }
   this.left = left + (fighterJet.width / 2) - 3;
 

@@ -4,7 +4,10 @@ const primaryAudio = document.getElementById('primary');
 
 function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondarySpeed, maxHealth, enemy) {
   this.element = document.createElement('div');
+  this.imageElement = document.createElement('div');
   this.element.classList.add('fighterJet');
+  this.imageElement.classList.add('fighterJetImage');
+  this.element.appendChild(this.imageElement);
   this.tooltip = document.createElement('div');
   this.tooltip.classList.add('tooltip');
   this.tooltipHealtherMeter = document.createElement('div');
@@ -17,6 +20,7 @@ function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondary
   this.top = top;
   this.width = width;
   this.height = height;
+  this.tilt = 0;
   this.flyRight = false;
   this.flyLeft = false;
   this.flyDown = false;
@@ -29,6 +33,7 @@ function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondary
   this.timeSinceLastShot = 0;
   this.rateOfFire = rateOfFire;
   this.lineOfFire = false;
+  this.speed = 0;
   this.bulletSpeed = bulletSpeed;
   this.bulletCount = 1;
   this.secondarySpeed = secondarySpeed;
@@ -69,16 +74,21 @@ function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondary
       }
   }
   if (enemy) {
-    this.element.style.backgroundImage = 'url("./Assets/Images/enemy1.png")';
+    this.imageElement.style.backgroundImage = 'url("./Assets/Images/enemy1.png")';
     enemyContainer.appendChild(this.element);
     enemies.push(this);
+    this.speed = 0.5;
   } else {
     container.appendChild(this.element);
     planes.push(this);
   }
   }
 
-  function directionToFly(fighterJet) {
+  function directionToFly(fighterJet, enemy) {
+    if (enemy) {
+      fighterJet.top -= fighterJet.speed;
+    }
+
     if (fighterJet.flyRight) {
       fighterJet.rightAccel += 0.1;
     }
@@ -97,8 +107,10 @@ function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondary
   function updatePosition(fighterJet) {
     fighterJet.left += fighterJet.rightAccel;
     fighterJet.top += fighterJet.topAccel;
+    fighterJet.tilt = fighterJet.rightAccel * 10;
     fighterJet.element.style.left = fighterJet.left + 'px';
     fighterJet.element.style.top = fighterJet.top + 'px';
+    fighterJet.imageElement.style.transform = `rotateY(${fighterJet.tilt}deg)`
     fighterJet.timeSinceLastFired += 1;
   }
 
@@ -137,7 +149,6 @@ function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondary
   function fighterJetCollisions(array, type) {
     for (let i = 0; i < array.length; i++) {
       let entity = array[i]
-
       if (type === 'enemies') {
         //update enemy tooltips
         if (window.time - entity.timeSinceLastShot > 120) {
@@ -145,13 +156,22 @@ function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondary
           entity.tooltip.style.opacity = 0;
         }
       }
+
       let playerCollision = ((container.width - entity.left - (entity.width / 5) >= fighterJet.left) && (container.width - entity.left - entity.width + entity.width / 5) <= fighterJet.left + fighterJet.width) && (container.height - entity.top - (entity.height / 5) >= fighterJet.top) && (container.height - entity.top - entity.height + (entity.height / 4) <= fighterJet.top + fighterJet.height);
 
       if (playerCollision) {
+        let damage = 0;
         if (!entity.hitByPlayer) {
-          entity.wasShot(null, true)
+          if (type === 'bullet') {
+            entity.collided = true;
+            damage = entity.damage;
+          } else {
+            entity.wasShot(null, true)
+            damage = 20;
+          }
+
           entity.hitByPlayer = true;
-          fighterJet.currentHealth -= 20;
+          fighterJet.currentHealth -= damage;
         }
       } else {
         entity.hitByPlayer = false;

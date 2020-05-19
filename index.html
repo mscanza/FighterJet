@@ -4,9 +4,10 @@
   <meta charset="utf-8">
   <link href="https://fonts.googleapis.com/css?family=Audiowide&display=swap" rel="stylesheet">
   <link href="./style.css" rel="stylesheet" type="text/css">
+  <script src="https://use.fontawesome.com/3efd968dcb.js"></script>
 </head>
 <body>
-  <div class="overlay"></div>
+  <i class="fa volume fa-volume-up fa-2x"></i>
   <div class="container">
     <div class="score">
       <span class="scoreLabel">Score: <span class="scoreNumber"></span></span>
@@ -16,6 +17,7 @@
     <div class="playerHealth">
       <img src="./Assets/Images/healthIcon.png" class="healthIcon">
       <div class="playerHealthMeter">
+        <div class="currentPlayerHealthUnderlay"></div>
         <div class="currentPlayerHealth"></div>
       </div>
     </div>
@@ -23,7 +25,6 @@
       <h1>Game Over.</h1>
     </div>
   </div>
-
   <script src="./explosions.js"></script>
   <script src="./bullets.js"></script>
   <script src="./stars.js"></script>

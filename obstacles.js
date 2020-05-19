@@ -28,7 +28,6 @@ function Obstacle(obstacleObject, startingLeft, startingTop = container.height +
 
   this.wasShot = function(bullet, playerCollision) {
     let damage = playerCollision ? 70 : bullet.type === 'secondary' ? 30 : 1;
-    document.getElementsByClassName('hitbox')[0].style.backgroundColor = 'green';
 
     this.health -= damage;
 

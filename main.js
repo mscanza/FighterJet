@@ -3,18 +3,43 @@ const enemyContainer = document.getElementsByClassName('enemyContainer')[0];
 const scoreNumber = document.getElementsByClassName('scoreNumber')[0];
 const backgroundContainer = document.getElementsByClassName('backgroundContainer')[0];
 const gameOver = document.getElementsByClassName("gameOver")[0];
+const muteButton = document.getElementsByClassName('volume')[0];
 
+let finalScore;
+let muted = false;
 
 const useStars = true;
 
 container.height = 900;
-container.width = 1400;
+container.width = 1000;
 
 const playerHealthMeter = document.getElementsByClassName('currentPlayerHealth')[0];
+const playerHealthMeterUnderlay = document.getElementsByClassName('currentPlayerHealthUnderlay')[0];
 
+//Reference
+//FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondarySpeed, maxHealth, enemy)
 var fighterJet = new FighterJet(350, 700, 100, 100, 5, 3, 10, 100)
 for (let i = 1; i < 3; i++) {
-  var enemy = new FighterJet(1000 / i, 700 - (i * 50), 100, 100, 5, 5, 20, 100, true)
+  var enemy = new FighterJet(Math.random() * container.width, 1000 - (i * 50), 100, 100, 5, 5, 20, 50, true)
+}
+
+//position mute button on upper left
+var containerPosition = container.getBoundingClientRect();
+muteButton.style.left = containerPosition.left + 5 + 'px';
+muteButton.style.top = containerPosition.top + 5 + 'px';
+
+muteButton.addEventListener("click", mute)
+
+function mute() {
+  if (muted) {
+    muteButton.classList.remove("fa-volume-mute");
+    muteButton.classList.add("fa-volume-up");
+    muted = false;
+  } else {
+    muteButton.classList.remove("fa-volume-up");
+    muteButton.classList.add("fa-volume-off");
+    muted = true;
+  }
 }
 
 
@@ -36,13 +61,6 @@ window.addEventListener('keydown', function (event) {
       break;
     // spacebar
     case 32: fighterJet.fire = true;
-
-    //Remove me!!!
-      for (let i = 0; i < enemies.length; i++) {
-        const enemy = enemies[i];
-        enemy.fire = true;
-      }
-
       break;
   }
 
@@ -66,12 +84,6 @@ window.addEventListener('keyup', function (event) {
       break;
     // spacebar
     case 32: fighterJet.fire = false;
-
-        //Remove me!!!
-        for (let i = 0; i < enemies.length; i++) {
-          const enemy = enemies[i];
-          enemy.fire = false;
-        }
       break;
 
   }
@@ -89,26 +101,23 @@ window.time = 0;
 // Game loop
 var gameInterval = setInterval(function () {
   window.time += 1;
-  console.log(window.time)
   if (useStars) {
     if (window.time % 30 === 0) {
       let myStar = new Star(Math.random() * container.width, 0, Math.random() * 5, Math.random() * 2, Math.random() * 5)
       // (left, top, size, brightness, speed)
     }
   }
-if (enemies.length <= 2) {
-  for (let i = 1; i < 3; i++) {
-    var enemy = new FighterJet(1000 / i, 700 - (i * 50), 100, 100, 5, 5, 20, 100, true)
+  if (enemies.length <= 1) {
+    for (let i = 1; i < 3; i++) {
+      var enemy = new FighterJet(Math.random() * container.width, 1000 - (i * 50), 100, 100, 5, 5, 20, 100, true)
+    }
   }
-}
   if (window.time % 300 === 0) {
     let obstacle = new Obstacle(rockBasic, Math.random() * container.width)
   }
 
+  var starElements = Array.from(document.getElementsByClassName('star'));
 
-  if (useStars) {
-    var starElements = Array.from(document.getElementsByClassName('star'));
-  }
   let explosionContainerArray = Array.from(document.getElementsByClassName('explosionContainer'));
 
 
@@ -122,7 +131,9 @@ if (enemies.length <= 2) {
         i -= 1;
         continue;
       } else if (bullet.type === 'secondary') {
-        bullet.soundCollision.play();
+        if (!muted) {
+          bullet.soundCollision.play();
+        }
         Explosion(bullet.left, bullet.top, window.time, 2, 'cyan', 10, 10, 50)
         bullet.element.remove()
         bullets.splice(i, 1);
@@ -133,26 +144,6 @@ if (enemies.length <= 2) {
     updateBullet(bullet, enemies, obstacles)
   }
 
-  //enemy bullets
-  for (let i = 0; i < enemyBullets.length; i++) {
-    let bullet = enemyBullets[i]
-    if (bullet.collided) {
-      if (bullet.type === 'primary') {
-        bullet.element.remove()
-        enemyBullets.splice(i, 1);
-        i -= 1;
-        continue;
-      } else if (bullet.type === 'secondary') {
-        bullet.soundCollision.play();
-        Explosion(bullet.left, bullet.top, window.time, 2, 'cyan', 10, 10, 50, true)
-        bullet.element.remove()
-        enemyBullets.splice(i, 1);
-        i -= 1;
-        continue;
-      }
-    }
-    updateEnemyBullet(bullet)
-  }
 
   checkFire(fighterJet)
 
@@ -161,18 +152,32 @@ if (enemies.length <= 2) {
     updatePosition(plane)
   })
 
-
   //enemies
   for (let i = 0; i < enemies.length; i++) {
     let enemy = enemies[i];
+
+    //enemy fire if fighterJet in line of fire
+    let lineOfFire = (enemy.left < container.width - fighterJet.left) && (enemy.left > container.width - (fighterJet.left + fighterJet.width));
+    if (lineOfFire) {
+      enemy.fire = true;
+    } else {
+      enemy.fire = false;
+    }
 
     //check enemy bullets
     checkFire(enemy, true)
 
     if (enemy.willExplode) {
-      fighterJet.score += 20;
+      fighterJet.score += 50;
       Explosion(container.width - enemy.left - enemy.width / 2, container.height - enemy.top - enemy.height / 2, window.time, 100, 'rgb(9, 71, 73)', 10, 50, 200)
-      enemy.willExplodeSound.play();
+      if (!muted) {
+        enemy.willExplodeSound.play();
+      }
+      enemy.element.remove();
+      enemies.splice(i, 1)
+      i -= 1;
+      continue;
+    } else if (enemy.top < -100 - enemy.height) {
       enemy.element.remove();
       enemies.splice(i, 1)
       i -= 1;
@@ -185,11 +190,21 @@ if (enemies.length <= 2) {
         enemy.flyRight = false;
       } else {
         if (fighterJet.left < container.width - enemy.left - enemy.width / 2) {
-          enemy.flyLeft = false;
-          enemy.flyRight = true;
+          //throttle acceleration
+          if (enemy.rightAccel > 5) {
+            enemy.flyLeft = true
+          } else {
+            enemy.flyLeft = false;
+            enemy.flyRight = true;
+          }
         } else {
-          enemy.flyRight = false;
-          enemy.flyLeft = true;
+          if (enemy.rightAccel < -5) {
+            //throttle acceleration
+            enemy.flyRight = true
+          } else {
+            enemy.flyRight = false;
+            enemy.flyLeft = true;
+          }
         }
       }
     }
@@ -200,9 +215,34 @@ if (enemies.length <= 2) {
       document.getElementsByClassName('hitbox')[0].style.backgroundColor = 'red';
     }
 
-    directionToFly(enemy)
+    directionToFly(enemy, true)
     updatePosition(enemy)
   }
+
+    //enemy bullets
+    for (let i = 0; i < enemyBullets.length; i++) {
+      let bullet = enemyBullets[i]
+      if (bullet.collided) {
+        if (bullet.type === 'primary') {
+          bullet.element.remove()
+          enemyBullets.splice(i, 1);
+          i -= 1;
+          continue;
+        } else if (bullet.type === 'secondary') {
+          if (bullet.soundCollision) {
+            if (!muted) {
+              bullet.soundCollision.play();
+            }
+          }
+          Explosion(bullet.left, bullet.top, window.time, 2, 'cyan', 10, 10, 50, true)
+          bullet.element.remove()
+          enemyBullets.splice(i, 1);
+          i -= 1;
+          continue;
+        }
+      }
+      updateEnemyBullet(bullet)
+    }
 
   //obstacles
   for (let i = 0; i < obstacles.length; i++) {
@@ -210,7 +250,9 @@ if (enemies.length <= 2) {
     if (obstacle.willExplode) {
       fighterJet.score += 5;
       Explosion(container.width - obstacle.left - obstacle.width / 2, container.height - obstacle.top - obstacle.height / 2, window.time, 20, 'rgb(100, 100, 100)', 10, 20, 100)
-      obstacle.sound.play();
+      if (!muted) {
+        obstacle.sound.play();
+      }
       obstacle.element.remove();
       obstacles.splice(i, 1)
       i -= 1;
@@ -223,23 +265,31 @@ if (enemies.length <= 2) {
   //player collisions
   fighterJetCollisions(enemies, 'enemies')
   fighterJetCollisions(obstacles)
-
+  fighterJetCollisions(enemyBullets, 'bullet')
 
   //update player health
-  if (fighterJet.currentHealth <= 0 && !fighterJet.hasExploded) {
-    Explosion(fighterJet.left - fighterJet.width / 2, fighterJet.top - fighterJet.height / 2, window.time, 20, 'rgb(255, 255, 200)', 8, 300, 2000);
-    fighterJet.hasExploded = true;
+  let playerHealthColor = fighterJet.currentHealth / fighterJet.maxHealth > 0.7 ? "lime" : fighterJet.currentHealth / fighterJet.maxHealth > 0.3 ? "yellow" : "red";
+
+  playerHealthMeter.style.width = fighterJet.currentHealth / fighterJet.maxHealth * 100 + '%';
+  playerHealthMeterUnderlay.style.width = fighterJet.currentHealth / fighterJet.maxHealth * 100 + '%';
+
+  playerHealthMeter.style.backgroundColor = playerHealthColor;
+  //Game over
+  if (fighterJet.hasExploded) {
+    finalScore = fighterJet.score
+    setTimeout(function () {
+      gameOver.style.opacity = 1;
+      scoreNumber.textContent = finalScore;
+    }, 3000)
     fighterJet.element.remove();
     fighterJet = false;
-    setTimeout(function() {
-      gameOver.style.opacity = 1;
-    }, 3000)
 
   }
 
-  let playerHealthColor = fighterJet.currentHealth / fighterJet.maxHealth > 0.7 ? "lime" : fighterJet.currentHealth / fighterJet.maxHealth > 0.3 ? "yellow" : "red";
-  playerHealthMeter.style.width = fighterJet.currentHealth / fighterJet.maxHealth * 100 + '%';
-  playerHealthMeter.style.backgroundColor = playerHealthColor;
+  if (fighterJet.currentHealth <= 0 && !fighterJet.hasExploded) {
+    Explosion(fighterJet.left - fighterJet.width / 2, fighterJet.top - fighterJet.height / 2, window.time, 20, 'rgb(255, 255, 200)', 8, 300, 2000);
+    fighterJet.hasExploded = true;
+  }
 
 
   if (useStars) {
@@ -249,7 +299,7 @@ if (enemies.length <= 2) {
 
   updateExplosionParticles(explosionContainerArray)
 
-  scoreNumber.textContent = fighterJet.score;
+  scoreNumber.textContent = finalScore || fighterJet.score || 0;
 
 }, 1000 / 60)
 
