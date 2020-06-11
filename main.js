@@ -6,7 +6,7 @@ const gameOver = document.getElementsByClassName("gameOver")[0];
 const muteButton = document.getElementsByClassName('volume')[0];
 
 let finalScore;
-let muted = false;
+let muted = true;
 
 const useStars = true;
 
@@ -17,10 +17,10 @@ const playerHealthMeter = document.getElementsByClassName('currentPlayerHealth')
 const playerHealthMeterUnderlay = document.getElementsByClassName('currentPlayerHealthUnderlay')[0];
 
 //Reference
-//FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondarySpeed, maxHealth, enemy)
-var fighterJet = new FighterJet(350, 700, 100, 100, 5, 3, 10, 100)
+//FighterJet(left, top, width, height, rateOfFire, maxHealth, enemy)
+var fighterJet = new FighterJet(350, 700, 100, 100, 5, 100)
 for (let i = 1; i < 3; i++) {
-  var enemy = new FighterJet(Math.random() * container.width, 1000 - (i * 50), 100, 100, 5, 5, 20, 50, true)
+  var enemy = new FighterJet(Math.random() * container.width, 1000 - (i * 50), 100, 100, 5, 50, true)
 }
 
 //position mute button on upper left
@@ -99,7 +99,7 @@ if (useStars) {
 
 window.time = 0;
 // Game loop
-var gameInterval = setInterval(function () {
+var gameInterval = function () {
   window.time += 1;
   if (useStars) {
     if (window.time % 30 === 0) {
@@ -109,11 +109,15 @@ var gameInterval = setInterval(function () {
   }
   if (enemies.length <= 1) {
     for (let i = 1; i < 3; i++) {
-      var enemy = new FighterJet(Math.random() * container.width, 1000 - (i * 50), 100, 100, 5, 5, 20, 100, true)
+      var enemy = new FighterJet(Math.random() * container.width, 1000 - (i * 50), 100, 100, 5, 50, true)
     }
   }
   if (window.time % 300 === 0) {
     let obstacle = new Obstacle(rockBasic, Math.random() * container.width)
+  }
+
+  if (window.time % 3000 === 0) {
+    let obstacle = new PowerUp(primary2, Math.random() * container.width)
   }
 
   var starElements = Array.from(document.getElementsByClassName('star'));
@@ -125,7 +129,7 @@ var gameInterval = setInterval(function () {
   for (let i = 0; i < bullets.length; i++) {
     let bullet = bullets[i]
     if (bullet.collided) {
-      if (bullet.type === 'primary') {
+      if (bullet.type.startsWith('primary')) {
         bullet.element.remove()
         bullets.splice(i, 1);
         i -= 1;
@@ -223,7 +227,7 @@ var gameInterval = setInterval(function () {
     for (let i = 0; i < enemyBullets.length; i++) {
       let bullet = enemyBullets[i]
       if (bullet.collided) {
-        if (bullet.type === 'primary') {
+        if (bullet.type.startsWith('primary')) {
           bullet.element.remove()
           enemyBullets.splice(i, 1);
           i -= 1;
@@ -249,10 +253,15 @@ var gameInterval = setInterval(function () {
     let obstacle = obstacles[i];
     if (obstacle.willExplode) {
       fighterJet.score += 5;
-      Explosion(container.width - obstacle.left - obstacle.width / 2, container.height - obstacle.top - obstacle.height / 2, window.time, 20, 'rgb(100, 100, 100)', 10, 20, 100)
+      Explosion(container.width - obstacle.left - obstacle.width / 2, container.height - obstacle.top - obstacle.height / 2, window.time, 20, obstacle.color, 10, 20, 100)
       if (!muted) {
         obstacle.sound.play();
       }
+      obstacle.element.remove();
+      obstacles.splice(i, 1)
+      i -= 1;
+      continue;
+    } else if (obstacle.top < -100 - obstacle.height) {
       obstacle.element.remove();
       obstacles.splice(i, 1)
       i -= 1;
@@ -261,11 +270,33 @@ var gameInterval = setInterval(function () {
     updateObstacle(obstacle)
   }
 
+console.log(obstacles.length)
+console.log(powerUps.length)
+
+  //powerUps
+  for (let i = 0; i < powerUps.length; i++) {
+    let powerUp = powerUps[i];
+    if (powerUp.powerUpUsed) {
+      powerUp.element.remove();
+      powerUps.splice(i, 1);
+      i -= 1;
+      continue;
+    } else if (powerUp.top < -100 - powerUp.height) {
+      powerUp.element.remove();
+      powerUps.splice(i, 1)
+      i -= 1;
+      continue;
+    }
+    updatePowerUp(powerUp)
+  }
+
 
   //player collisions
   fighterJetCollisions(enemies, 'enemies')
   fighterJetCollisions(obstacles)
   fighterJetCollisions(enemyBullets, 'bullet')
+  fighterJetCollisions(powerUps, 'powerUp')
+
 
   //update player health
   let playerHealthColor = fighterJet.currentHealth / fighterJet.maxHealth > 0.7 ? "lime" : fighterJet.currentHealth / fighterJet.maxHealth > 0.3 ? "yellow" : "red";
@@ -300,6 +331,7 @@ var gameInterval = setInterval(function () {
   updateExplosionParticles(explosionContainerArray)
 
   scoreNumber.textContent = finalScore || fighterJet.score || 0;
+  requestAnimationFrame(gameInterval)
+}
 
-}, 1000 / 60)
-
+requestAnimationFrame(gameInterval)

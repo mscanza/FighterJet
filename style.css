@@ -56,9 +56,6 @@ html, body {
 }
 
 .bullet {
-  height: 10px;
-  width: 5px;
-  background-color: red;
   position: absolute;
   border-radius: 50%;
 }
@@ -117,7 +114,7 @@ html, body {
   transform: rotate(180deg);
   transition: opacity 0.2s;
   margin: 0 auto;
-  top: 100px;
+  top: 10px;
   text-align: center;
 
 }
@@ -130,6 +127,13 @@ html, body {
   background-size: contain;
   position: absolute;
   background-repeat: no-repeat;
+}
+
+.powerUp {
+  background-size: contain;
+  position: absolute;
+  background-repeat: no-repeat;
+  transform: rotate(180deg);
 }
 
 .playerHealth {

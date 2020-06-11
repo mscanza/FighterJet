@@ -1,8 +1,7 @@
 const planes = [];
 const enemies = [];
-const primaryAudio = document.getElementById('primary');
 
-function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondarySpeed, maxHealth, enemy) {
+function FighterJet(left, top, width, height, rateOfFire, maxHealth, enemy) {
   this.element = document.createElement('div');
   this.imageElement = document.createElement('div');
   this.element.classList.add('fighterJet');
@@ -34,9 +33,8 @@ function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondary
   this.rateOfFire = rateOfFire;
   this.lineOfFire = false;
   this.speed = 0;
-  this.bulletSpeed = bulletSpeed;
+  this.bulletType = {type: 'primary', color: 'red'}
   this.bulletCount = 1;
-  this.secondarySpeed = secondarySpeed;
   this.topAccel = 0;
   this.rightAccel = 0;
   this.maxHealth = maxHealth;
@@ -60,11 +58,10 @@ function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondary
     this.timeSinceLastShot = window.time;
     let damage;
     if (bullet) {
-      damage = bullet.type === 'secondary' ? 30 : 1;
+      damage = bullet.damage;
     } else if (playerCollision) {
       damage = 70;
     }
-      document.getElementsByClassName('hitbox')[0].style.backgroundColor = 'green';
       this.tooltip.style.transition = 'opacity 0.2s'
       this.tooltip.style.opacity = 1;
       this.setTooltipHealth(this.currentHealth -= damage);
@@ -133,7 +130,7 @@ function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondary
           containerToAppend.appendChild(bulletSecondaryLeft.element);
           containerToAppend.appendChild(bulletSecondaryRight.element);
         }
-        let bullet = new Bullet(fighterJet.left, fighterJet.top, 'primary', null, 'red', window.time, isEnemy);
+        let bullet = new Bullet(fighterJet.left, fighterJet.top, fighterJet.bulletType.type, null, fighterJet.bulletType.color, window.time, isEnemy);
         // bullet.sound.play()
           bulletArray.push(bullet)
           containerToAppend.appendChild(bullet.element)
@@ -149,13 +146,6 @@ function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondary
   function fighterJetCollisions(array, type) {
     for (let i = 0; i < array.length; i++) {
       let entity = array[i]
-      if (type === 'enemies') {
-        //update enemy tooltips
-        if (window.time - entity.timeSinceLastShot > 120) {
-          entity.tooltip.style.transition = 'opacity 1s';
-          entity.tooltip.style.opacity = 0;
-        }
-      }
 
       let playerCollision = ((container.width - entity.left - (entity.width / 5) >= fighterJet.left) && (container.width - entity.left - entity.width + entity.width / 5) <= fighterJet.left + fighterJet.width) && (container.height - entity.top - (entity.height / 5) >= fighterJet.top) && (container.height - entity.top - entity.height + (entity.height / 4) <= fighterJet.top + fighterJet.height);
 
@@ -165,6 +155,9 @@ function FighterJet(left, top, width, height, rateOfFire, bulletSpeed, secondary
           if (type === 'bullet') {
             entity.collided = true;
             damage = entity.damage;
+          } else if (type === 'powerUp') {
+            entity.applyPowerUp(fighterJet)
+            entity.powerUpUsed = true;
           } else {
             entity.wasShot(null, true)
             damage = 20;

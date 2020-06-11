@@ -58,10 +58,10 @@ function updateBullet(bullet, enemies, obstacles) {
       bullet.left += direction;
       bullet.top -= 0.5;
     } else {
-      bullet.top -= fighterJet.secondarySpeed;
+      bullet.top -= bullet.bulletSpeed;
     }
-  } else if (bullet.type === 'primary') {
-    bullet.top -= fighterJet.bulletSpeed;
+  } else {
+    bullet.top -= bullet.bulletSpeed;
   }
 
   bullet.element.style.left = bullet.left + 'px';
@@ -89,10 +89,10 @@ function updateEnemyBullet(bullet) {
       bullet.left += direction;
       bullet.top -= 0.5;
     } else {
-      bullet.top -= fighterJet.secondarySpeed;
+      bullet.top -= bullet.bulletSpeed;
     }
-  } else if (bullet.type === 'primary') {
-    bullet.top -= fighterJet.bulletSpeed;
+  } else if (bullet.type.startsWith('primary')) {
+    bullet.top -= bullet.bulletSpeed;
   }
 
   bullet.element.style.left = bullet.left + 'px';
@@ -114,6 +114,7 @@ function Bullet(left, top, type = 'primary', subtype = 'left', color, time, enem
   this.element = document.createElement('div')
   this.element.classList.add('bullet')
   this.top = top;
+  this.bulletSpeed = 2;
   this.element.exploded = false;
   this.isEnemyBullet = enemy;
 
@@ -122,15 +123,29 @@ function Bullet(left, top, type = 'primary', subtype = 'left', color, time, enem
     this.soundCollision.src = './audio/secondaryCollision.mp3';
     this.width = 8;
     this.height = 20;
-    this.damage = 10;
+    this.damage = 30;
+    this.bulletSpeed = 12;
     if (this.subtype === 'left') {
       this.sound.src = './audio/secondary.mp3';
     }
   } else if (this.type === 'primary') {
     this.height = 10;
+    this.bulletSpeed = 2;
     this.width = 5;
-    this.sound.src = './audio/primary.mp3';
     this.damage = 1;
+    this.sound.src = './audio/primary.mp3';
+    this.element.style.width = '5px';
+    this.element.style.height = '10px';
+    this.element.style.backgroundColor = 'red';
+  } else if (this.type === 'primary2') {
+    this.height = 12;
+    this.width = 5;
+    this.damage = 2;
+    this.bulletSpeed = 3;
+    this.sound.src = './audio/primary.mp3';
+    this.element.style.width = '5px';
+    this.element.style.height = '12px';
+    this.element.style.backgroundColor = 'blue';
   }
   this.left = left + (fighterJet.width / 2) - 3;
 
