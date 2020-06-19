@@ -4,6 +4,9 @@ const scoreNumber = document.getElementsByClassName('scoreNumber')[0];
 const backgroundContainer = document.getElementsByClassName('backgroundContainer')[0];
 const gameOver = document.getElementsByClassName("gameOver")[0];
 const muteButton = document.getElementsByClassName('volume')[0];
+const newGame = document.getElementById("newGame");
+const playerHealth = document.getElementsByClassName("playerHealth");
+const scoreElement = document.getElementsByClassName("score");
 
 let finalScore;
 let muted = true;
@@ -19,9 +22,9 @@ const playerHealthMeterUnderlay = document.getElementsByClassName('currentPlayer
 //Reference
 //FighterJet(left, top, width, height, rateOfFire, maxHealth, enemy)
 var fighterJet = new FighterJet(350, 700, 100, 100, 5, 100)
-for (let i = 1; i < 3; i++) {
-  var enemy = new FighterJet(Math.random() * container.width, 1000 - (i * 50), 100, 100, 5, 50, true)
-}
+let gameState = "intro"
+gsap.fromTo("#fighterJetTitle", 0.8, {scale: 0, opacity: 0}, {scale: 1.1, opacity: 1, ease: "Back.easeOut"})
+
 
 //position mute button on upper left
 var containerPosition = container.getBoundingClientRect();
@@ -40,6 +43,19 @@ function mute() {
     muteButton.classList.add("fa-volume-off");
     muted = true;
   }
+}
+
+newGame.addEventListener("click", startGame)
+
+function startGame() {
+
+  gsap.to("#fighterJetTitle", 0.5, {scale: 0, opacity: 0})
+  gsap.to(newGame, 0.5, {opacity: 0, onComplete: function() {
+    gsap.to(playerHealth, 1, {opacity: 1, scale: 1, ease: "Power2.easeOut"});
+    gsap.to(scoreElement, 1, {opacity: 1, ease: "Power2.easeOut"});
+    gameState = "active";
+  }})
+
 }
 
 
@@ -106,7 +122,12 @@ var gameInterval = function () {
       let myStar = new Star(Math.random() * container.width, 0, Math.random() * 5, Math.random() * 2, Math.random() * 5)
       // (left, top, size, brightness, speed)
     }
+    var starElements = Array.from(document.getElementsByClassName('star'));
+    updateStarPosition(starElements)
   }
+
+if (gameState === 'active') {
+
   if (enemies.length <= 1) {
     for (let i = 1; i < 3; i++) {
       var enemy = new FighterJet(Math.random() * container.width, 1000 - (i * 50), 100, 100, 5, 50, true)
@@ -119,8 +140,6 @@ var gameInterval = function () {
   if (window.time % 3000 === 0) {
     let obstacle = new PowerUp(primary2, Math.random() * container.width)
   }
-
-  var starElements = Array.from(document.getElementsByClassName('star'));
 
   let explosionContainerArray = Array.from(document.getElementsByClassName('explosionContainer'));
 
@@ -270,9 +289,6 @@ var gameInterval = function () {
     updateObstacle(obstacle)
   }
 
-console.log(obstacles.length)
-console.log(powerUps.length)
-
   //powerUps
   for (let i = 0; i < powerUps.length; i++) {
     let powerUp = powerUps[i];
@@ -323,12 +339,9 @@ console.log(powerUps.length)
   }
 
 
-  if (useStars) {
-    updateStarPosition(starElements)
-  }
-
-
   updateExplosionParticles(explosionContainerArray)
+
+}
 
   scoreNumber.textContent = finalScore || fighterJet.score || 0;
   requestAnimationFrame(gameInterval)
