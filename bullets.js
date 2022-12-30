@@ -146,7 +146,17 @@ function Bullet(left, top, type = 'primary', subtype = 'left', color, time, enem
     this.element.style.width = '5px';
     this.element.style.height = '12px';
     this.element.style.backgroundColor = 'blue';
+  } else if (this.type === 'primary3') {
+    this.height = 15;
+    this.width = 4;
+    this.damage = 3;
+    this.bulletSpeed = 4;
+    this.sound.src = './audio/primary.mp3';
+    this.element.style.width = '4px';
+    this.element.style.height = '15px';
+    this.element.style.backgroundColor = 'orange';
   }
+
   this.left = left + (fighterJet.width / 2) - 3;
 
   if (enemy) {

@@ -7,6 +7,7 @@ const muteButton = document.getElementsByClassName('volume')[0];
 const newGame = document.getElementById("newGame");
 const playerHealth = document.getElementsByClassName("playerHealth");
 const scoreElement = document.getElementsByClassName("score");
+const menuOption = document.getElementsByClassName("menuOption")
 
 let finalScore;
 let muted = true;
@@ -19,9 +20,12 @@ container.width = 1000;
 const playerHealthMeter = document.getElementsByClassName('currentPlayerHealth')[0];
 const playerHealthMeterUnderlay = document.getElementsByClassName('currentPlayerHealthUnderlay')[0];
 
+
 //Reference
 //FighterJet(left, top, width, height, rateOfFire, maxHealth, enemy)
-var fighterJet = new FighterJet(350, 700, 100, 100, 5, 100)
+var fighterJet = new FighterJet((container.width / 2 - 50), 600, 100, 100, 5, 100)
+gsap.set(".fighterJet", {scale: 4})
+
 let gameState = "intro"
 gsap.fromTo("#fighterJetTitle", 0.8, {scale: 0, opacity: 0}, {scale: 1.1, opacity: 1, ease: "Back.easeOut"})
 
@@ -45,19 +49,41 @@ function mute() {
   }
 }
 
+let menuOptions = Array.from(menuOption)
+
+for (let i = 0; i < menuOptions.length; i++) {
+
+  var tl = gsap.timeline({repeat: -1});
+
+  menuOptions[i].addEventListener("mouseover", function() {
+    gsap.to(menuOptions[i], 0.1, {scale: 1.1});
+
+    tl.to(menuOptions[i], 0.15, {color: "blue"});
+    tl.to(menuOptions[i], 0.15, {color: "white"});
+    tl.play(0);
+  })
+
+  menuOptions[i].addEventListener("mouseout", function() {
+    gsap.to(menuOptions[i], 0.1, {scale: 1});
+    gsap.to(menuOptions[i], 0.15, {color: "white"});
+    tl.kill();
+  })
+}
+
 newGame.addEventListener("click", startGame)
 
 function startGame() {
 
   gsap.to("#fighterJetTitle", 0.5, {scale: 0, opacity: 0})
+  gsap.to(".fighterJet", 1, {scale: 1})
   gsap.to(newGame, 0.5, {opacity: 0, onComplete: function() {
-    gsap.to(playerHealth, 1, {opacity: 1, scale: 1, ease: "Power2.easeOut"});
-    gsap.to(scoreElement, 1, {opacity: 1, ease: "Power2.easeOut"});
+    gsap.to(playerHealth, 2, {opacity: 1, scale: 1, ease: "Power2.easeOut"});
+    gsap.to(scoreElement, 2, {opacity: 1, ease: "Power2.easeOut"});
+
     gameState = "active";
   }})
 
 }
-
 
 window.addEventListener('keydown', function (event) {
   event.preventDefault()
@@ -108,7 +134,7 @@ window.addEventListener('keyup', function (event) {
 
 if (useStars) {
   for (let i = 0; i < 100; i++) {
-    let myStar = new Star(Math.random() * container.width, Math.random() * container.width, Math.random() * 5, Math.random() * 2, Math.random())
+    let myStar = new Star(Math.random() * container.width, Math.random() * container.width, Math.random() * 5, Math.random() * 2, Math.random() * 5)
   }
 }
 
@@ -139,6 +165,10 @@ if (gameState === 'active') {
 
   if (window.time % 3000 === 0) {
     let obstacle = new PowerUp(primary2, Math.random() * container.width)
+  }
+
+  if (window.time % 5000 === 0) {
+    let obstacle = new PowerUp(primary3, Math.random() * container.width)
   }
 
   let explosionContainerArray = Array.from(document.getElementsByClassName('explosionContainer'));

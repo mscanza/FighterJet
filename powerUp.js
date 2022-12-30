@@ -8,6 +8,8 @@ function PowerUp(powerUpObject, startingLeft, startingTop = container.height + 2
   this.left = startingLeft;
   this.top = startingTop;
   this.url = powerUpObject.url;
+  this.sound = document.createElement('audio');
+  this.sound.src = powerUpObject.soundSrc;
   this.speedTop = powerUpObject.speedTop;
   this.speedLeft = powerUpObject.speedLeft;
   this.color = powerUpObject.color;
@@ -46,8 +48,24 @@ const primary2 = {
   url: 'url(./Assets/Images/missile-icon-png-3-original.png)',
   speedTop: 3,
   speedLeft: 0,
+  soundSrc: './audio/powerUp.mp3',
   filter: "invert(7%) sepia(100%) saturate(7171%) hue-rotate(246deg) brightness(108%) contrast(146%)",
   powerUpToApply(plane) {
     plane.bulletType = {type: 'primary2', color: 'blue'}
+  }
+}
+
+const primary3 = {
+  type: 'primary',
+  subType: 'primary3',
+  width: 100,
+  height: 200,
+  url: 'url(./Assets/Images/missile-icon-png-3-original.png)',
+  speedTop: 4,
+  speedLeft: 0,
+  soundSrc: './audio/powerUp.mp3',
+  filter: "invert(7%) sepia(100%) saturate(7171%) hue-rotate(50deg) brightness(108%) contrast(146%)",
+  powerUpToApply(plane) {
+    plane.bulletType = {type: 'primary3', color: 'orange'}
   }
 }
